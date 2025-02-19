@@ -28,6 +28,12 @@ function addRandomEpisodeButton() {
 async function pickRandomEpisode() {
     console.log("🎲 Random episode button clicked!");
 
+    // Prevent spam clicking
+    const randomButton = document.getElementById("random-episode-btn");
+    if (!randomButton) return;
+    randomButton.disabled = true; // Disable button temporarily
+    setTimeout(() => (randomButton.disabled = false), 5000); // Re-enable after 5 seconds    
+
     // Open the season selector
     const seasonDropdownButton = document.querySelector("button.dropdown-toggle");
     if (!seasonDropdownButton) return console.error("❌ Season dropdown button not found.");
