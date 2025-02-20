@@ -31,7 +31,7 @@ function addRandomEpisodeButton() {
 
 // Function to pick a random episode
 async function pickRandomEpisode() {
-    console.log("🎲 Random episode button clicked!");
+    console.log("Random episode button clicked!");
 
     // Prevent spam clicking
     const randomButton = document.getElementById("random-episode-btn");
@@ -80,7 +80,7 @@ async function pickRandomEpisode() {
 
         // Pick a random episode
         const randomEpisode = episodes[Math.floor(Math.random() * episodes.length)];
-        console.log(`🎯 Clicking on episode ${episodes.indexOf(randomEpisode) + 1}`);
+        console.log(`Clicking on episode ${episodes.indexOf(randomEpisode) + 1}`);
 
         // Stop dice rolling **right before clicking the episode**
         clearInterval(rollInterval);
@@ -100,9 +100,9 @@ async function pickRandomEpisode() {
 
 // MutationObserver: Ensures the button always appears
 function observeNetflixChanges() {
-    console.log("👀 Watching for Netflix page changes...");
+    console.log("Watching for Netflix page changes...");
     new MutationObserver(() => {
-        console.log("🔄 Detected Netflix UI change. Checking for button...");
+        console.log("Detected Netflix UI change. Checking for button...");
         addRandomEpisodeButton();
     }).observe(document.body, { childList: true, subtree: true });
 }
