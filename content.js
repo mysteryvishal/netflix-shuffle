@@ -5,7 +5,12 @@ function addRandomEpisodeButton() {
     // Find the button row (but not inside a preview modal)
     const buttonRow = document.querySelector(".buttonControls--container:not(.has-smaller-buttons)");
 
-    console.log("🎲 Adding 'Random Episode' button...");
+    if (!buttonRow) {
+        console.log("Button container not found yet, waiting for Netflix UI to load...");
+        return;
+    }
+
+    console.log("Adding 'Random Episode' button...");
 
     // Create button
     const randomButton = document.createElement("button");
@@ -32,9 +37,8 @@ async function pickRandomEpisode() {
     const randomButton = document.getElementById("random-episode-btn");
     if (!randomButton) return;
     randomButton.disabled = true; // Disable button temporarily
-    setTimeout(() => (randomButton.disabled = false), 5000); // Re-enable after 5 seconds    
 
-    // 🎲 Start Rolling Dice Animation
+    // Start Rolling Dice Animation
     const diceFaces = [
         `<path fill="currentColor" d="M2.66667 0H21.3333C22.0406 0 22.7189 0.280951 23.219 0.781048C23.719 1.28115 24 1.95942 24 2.66667V21.3333C24 22.0406 23.719 22.7189 23.219 23.219C22.7189 23.719 22.0406 24 21.3333 24H2.66667C1.95942 24 1.28115 23.719 0.781048 23.219C0.280951 22.7189 0 22.0406 0 21.3333V2.66667C0 1.95942 0.280951 1.28115 0.781048 0.781048C1.28115 0.280951 1.95942 0 2.66667 0ZM12 9.33333C11.2928 9.33333 10.6145 9.61429 10.1144 10.1144C9.61429 10.6145 9.33333 11.2928 9.33333 12C9.33333 12.7072 9.61429 13.3855 10.1144 13.8856C10.6145 14.3857 11.2928 14.6667 12 14.6667C12.7072 14.6667 13.3855 14.3857 13.8856 13.8856C14.3857 13.3855 14.6667 12.7072 14.6667 12C14.6667 11.2928 14.3857 10.6145 13.8856 10.1144C13.3855 9.61429 12.7072 9.33333 12 9.33333Z"/>`,
         `<path fill="currentColor" d="M2.66667 0H21.3333C22.0406 0 22.7189 0.280951 23.219 0.781048C23.719 1.28115 24 1.95942 24 2.66667V21.3333C24 22.0406 23.719 22.7189 23.219 23.219C22.7189 23.719 22.0406 24 21.3333 24H2.66667C1.95942 24 1.28115 23.719 0.781048 23.219C0.280951 22.7189 0 22.0406 0 21.3333V2.66667C0 1.95942 0.280951 1.28115 0.781048 0.781048C1.28115 0.280951 1.95942 0 2.66667 0ZM5.33333 2.66667C4.62609 2.66667 3.94781 2.94762 3.44772 3.44772C2.94762 3.94781 2.66667 4.62609 2.66667 5.33333C2.66667 6.04058 2.94762 6.71885 3.44772 7.21895C3.94781 7.71905 4.62609 8 5.33333 8C6.04058 8 6.71885 7.71905 7.21895 7.21895C7.71905 6.71885 8 6.04058 8 5.33333C8 4.62609 7.71905 3.94781 7.21895 3.44772C6.71885 2.94762 6.04058 2.66667 5.33333 2.66667ZM18.6667 16C17.9594 16 17.2811 16.281 16.781 16.781C16.281 17.2811 16 17.9594 16 18.6667C16 19.3739 16.281 20.0522 16.781 20.5523C17.2811 21.0524 17.9594 21.3333 18.6667 21.3333C19.3739 21.3333 20.0522 21.0524 20.5523 20.5523C21.0524 20.0522 21.3333 19.3739 21.3333 18.6667C21.3333 17.9594 21.0524 17.2811 20.5523 16.781C20.0522 16.281 19.3739 16 18.6667 16Z"/>`,
@@ -47,44 +51,51 @@ async function pickRandomEpisode() {
     const diceIcon = randomButton.querySelector("svg");
     let rollCount = 0;
 
+    // Keep rolling the dice until episode is selected
     const rollInterval = setInterval(() => {
         diceIcon.innerHTML = diceFaces[rollCount % 6]; // Cycle through dice faces
         rollCount++;
     }, 100); // Change every 100ms
 
-    // Stop rolling after 1 second
-    await new Promise(resolve => setTimeout(resolve, 3000));
-    clearInterval(rollInterval);
-    diceIcon.innerHTML = diceFaces[Math.floor(Math.random() * 6)]; // Pick final face
+    try {
+        // Open the season selector
+        const seasonDropdownButton = document.querySelector("button.dropdown-toggle");
+        if (!seasonDropdownButton) throw new Error("❌ Season dropdown button not found.");
+        seasonDropdownButton.click();
+        await new Promise(resolve => setTimeout(resolve, 1000));
 
+        // Select "See All Episodes"
+        const seasonOptions = document.querySelectorAll(".episodeSelector-dropdown li[data-uia='dropdown-menu-item']");
+        if (seasonOptions.length > 0) {
+            seasonOptions[seasonOptions.length - 1].click();
+            console.log("Selected 'See All Episodes'");
+            await new Promise(resolve => setTimeout(resolve, 2000));
+        } else {
+            throw new Error("❌ Could not find 'See All Episodes' option.");
+        }
 
-    // Open the season selector
-    const seasonDropdownButton = document.querySelector("button.dropdown-toggle");
-    if (!seasonDropdownButton) return console.error("❌ Season dropdown button not found.");
-    seasonDropdownButton.click();
-    await new Promise(resolve => setTimeout(resolve, 1000));
+        // Find all episode items
+        const episodes = Array.from(document.querySelectorAll(".episode-item"));
+        if (episodes.length === 0) throw new Error("❌ No episodes found.");
 
-    // Select "See All Episodes"
-    const seasonOptions = document.querySelectorAll(".episodeSelector-dropdown li[data-uia='dropdown-menu-item']");
-    if (seasonOptions.length > 0) {
-        seasonOptions[seasonOptions.length - 1].click();
-        // console.log("Selected 'See All Episodes'");
-        await new Promise(resolve => setTimeout(resolve, 2000));
-    } else {
-        return console.error("❌ Could not find 'See All Episodes' option.");
-    }
-
-    // Find all episode items and convert NodeList to an array
-    const episodes = Array.from(document.querySelectorAll(".episode-item"));
-    console.log(`🎲 Found ${episodes.length} episodes.`);
-
-    if (episodes.length > 0) {
+        // Pick a random episode
         const randomEpisode = episodes[Math.floor(Math.random() * episodes.length)];
         console.log(`🎯 Clicking on episode ${episodes.indexOf(randomEpisode) + 1}`);
+
+        // Stop dice rolling **right before clicking the episode**
+        clearInterval(rollInterval);
+        diceIcon.innerHTML = diceFaces[Math.floor(Math.random() * 6)];
+
+        // Click the episode to play it
         randomEpisode.click();
-    } else {
-        console.error("❌ No episodes found.");
+    } catch (error) {
+        console.error(error.message);
+        clearInterval(rollInterval);
+        diceIcon.innerHTML = diceFaces[Math.floor(Math.random() * 6)]; // Stop rolling with a final face
     }
+
+    // Re-enable the button after everything is done
+    setTimeout(() => (randomButton.disabled = false), 5000);
 }
 
 // MutationObserver: Ensures the button always appears
