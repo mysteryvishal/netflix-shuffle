@@ -1,7 +1,7 @@
 {
     "manifest_version": 3,
     "name": "Netflix Random Episode",
-    "version": "1.0",
+    "version": "0.0.0.1",
     "description": "Adds a button to select a random episode on Netflix.",
     "permissions": ["scripting", "activeTab"],
     "host_permissions": ["https://www.netflix.com/*"],
@@ -13,5 +13,10 @@
         "matches": ["https://www.netflix.com/search/*jbv=*", "https://www.netflix.com/browse", "https://www.netflix.com/title/*"],
         "js": ["content.js"]
       }
-    ]
+    ],
+   "icons": {
+    "16": "./icons/icon16.png",
+    "48": "./icons/icon48.png",
+    "128": "./icons/icon128.png"
+   }
   }
